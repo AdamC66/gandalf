@@ -15,7 +15,7 @@ function App() {
               <Button className="bp3-minimal" icon="home" text="Home" />
             </Link>
             <Link to="/about">
-              <Button className="bp3-minimal" icon="document" text="Files" />
+              <Button className="bp3-minimal" icon="help" text="About" />
             </Link>
           </Navbar.Group>
         </Navbar>
@@ -39,7 +39,4 @@ function About() {
   return <h2>About</h2>;
 }
 
-function Users() {
-  return <h2>Users</h2>;
-}
 export default App;
