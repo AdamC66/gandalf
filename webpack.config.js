@@ -36,6 +36,20 @@ module.exports = function (_env, argv) {
             isProduction ? MiniCssExtractPlugin.loader : "style-loader",
             "css-loader",
           ],
+          exclude: /\.module\.css$/,
+        },
+        {
+          test: /\.module\.css$/,
+          use: [
+            "style-loader",
+            {
+              loader: "css-loader",
+              options: {
+                importLoaders: 1,
+                modules: true,
+              },
+            },
+          ],
         },
         {
           test: /\.(png|jpg|gif)$/i,
@@ -54,12 +68,18 @@ module.exports = function (_env, argv) {
       ],
     },
     resolve: {
+      modules: ["src", "node_modules"],
       extensions: [".js", ".jsx"],
+      alias: {
+        components: path.resolve(__dirname, "src/components/"),
+        containers: path.resolve(__dirname, "src/containers/"),
+      },
     },
     plugins: [
       new webpack.ProvidePlugin({
         React: "react",
       }),
+      new webpack.HotModuleReplacementPlugin(),
       isProduction &&
         new MiniCssExtractPlugin({
           filename: "assets/css/[name].[contenthash:8].css",
@@ -121,6 +141,7 @@ module.exports = function (_env, argv) {
       compress: true,
       historyApiFallback: true,
       open: true,
+      hot: true,
       overlay: true,
     },
   };
