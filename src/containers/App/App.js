@@ -1,37 +1,31 @@
 import React from "react";
 import "./App.css";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
-import { Navbar, Button } from "@blueprintjs/core";
 import Home from "containers/Home";
+import Login from "containers/Login";
+import Header from "components/Header";
+import { AuthProvider } from "context/AuthContext";
+
 function App() {
   return (
-    <Router>
-      <div>
-        <Navbar>
-          <Navbar.Group align="left">
-            <Navbar.Heading>Gandalf</Navbar.Heading>
-            <Navbar.Divider />
-            <Link to="/">
-              <Button className="bp3-minimal" icon="home" text="Home" />
-            </Link>
-            <Link to="/about">
-              <Button className="bp3-minimal" icon="help" text="About" />
-            </Link>
-          </Navbar.Group>
-        </Navbar>
-
-        {/* A <Switch> looks through its children <Route>s and
-            renders the first one that matches the current URL. */}
-        <Switch>
-          <Route path="/about">
-            <About />
-          </Route>
-          <Route path="/">
-            <Home />
-          </Route>
-        </Switch>
-      </div>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <div>
+          <Header />
+          <Switch>
+            <Route path="/about">
+              <About />
+            </Route>
+            <Route path="/login">
+              <Login />
+            </Route>
+            <Route path="/">
+              <Home />
+            </Route>
+          </Switch>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 
