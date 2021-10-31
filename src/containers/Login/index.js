@@ -9,7 +9,7 @@ import { AuthContext } from "context/AuthContext";
 function Login() {
   const [showPassword, setShowPassword] = React.useState(false);
   const { state, login } = useContext(AuthContext);
-  const { isAuthenticated, isLoading } = state;
+  const { isAuthenticated } = state;
 
   const {
     control,

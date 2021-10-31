@@ -4,12 +4,12 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const webpack = require("webpack");
 const TerserWebpackPlugin = require("terser-webpack-plugin");
 
-module.exports = function (_env, argv) {
+module.exports = function(_env, argv) {
   const isProduction = argv.mode === "production";
-  const isDevelopment = !isProduction;
+  const isLocal = !isProduction;
 
   return {
-    devtool: isDevelopment && "cheap-module-source-map",
+    devtool: isLocal && "cheap-module-source-map",
     entry: "./src/index.js",
     output: {
       path: path.resolve(__dirname, "dist"),
@@ -26,7 +26,7 @@ module.exports = function (_env, argv) {
             options: {
               cacheDirectory: true,
               cacheCompression: false,
-              envName: isProduction ? "production" : "development",
+              envName: isProduction ? "production" : "local",
             },
           },
         },
@@ -74,6 +74,7 @@ module.exports = function (_env, argv) {
         components: path.resolve(__dirname, "src/components/"),
         containers: path.resolve(__dirname, "src/containers/"),
         context: path.resolve(__dirname, "src/context/"),
+        utils: path.resolve(__dirname, "src/utils/"),
       },
     },
     plugins: [
@@ -92,7 +93,7 @@ module.exports = function (_env, argv) {
       }),
       new webpack.DefinePlugin({
         "process.env.NODE_ENV": JSON.stringify(
-          isProduction ? "production" : "development"
+          isProduction ? "production" : "local"
         ),
       }),
     ].filter(Boolean),

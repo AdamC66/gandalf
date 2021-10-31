@@ -1,16 +1,20 @@
 import React from "react";
 import "./App.css";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Home from "containers/Home";
 import Login from "containers/Login";
+import { QueryClient, QueryClientProvider } from "react-query";
 import Header from "components/Header";
 import { AuthProvider } from "context/AuthContext";
 import PrivateRoute from "components/PrivateRoute";
+import { ReactQueryDevtools } from "react-query/devtools";
+const queryClient = new QueryClient();
+
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <div>
+      <QueryClientProvider client={queryClient}>
+        <Router>
           <Header />
           <Switch>
             <PrivateRoute path="/about" component={About} />
@@ -22,8 +26,9 @@ function App() {
               <Home />
             </Route>
           </Switch>
-        </div>
-      </Router>
+        </Router>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
     </AuthProvider>
   );
 }
