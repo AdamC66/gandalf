@@ -3,6 +3,8 @@ import "./App.css";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Home from "containers/Home";
 import Login from "containers/Login";
+import Register from "containers/Register";
+
 import { QueryClient, QueryClientProvider } from "react-query";
 import Header from "components/Header";
 import { AuthProvider } from "context/AuthContext";
@@ -21,6 +23,9 @@ function App() {
 
             <Route path="/login">
               <Login />
+            </Route>
+            <Route path="/register">
+              <Register />
             </Route>
             <Route path="/">
               <Home />

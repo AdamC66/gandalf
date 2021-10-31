@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import Page from "components/Page";
+import * as _ from "lodash";
 import { useMutation } from "react-query";
 import { Redirect, Link } from "react-router-dom";
 import { InputGroup, Intent, Button, Label, Card } from "@blueprintjs/core";
@@ -16,11 +17,12 @@ function Login() {
     control,
     handleSubmit,
     formState: { errors },
+    setError,
   } = useForm();
-  const { mutate: doLogin, isLoading, isError } = useMutation(
+  const { mutate: doRegister, isLoading } = useMutation(
     (data) =>
       backendFetch({
-        endpoint: `auth/login/`,
+        endpoint: `auth/register/`,
         method: "POST",
         body: data,
         omitToken: true,
@@ -29,17 +31,32 @@ function Login() {
       useErrorBoundary: false,
       onSuccess: (data) => {
         login({
-          user: {},
+          user: data.user,
           token: data.token,
         });
       },
+      onError: (error) => {
+        const errors = error.response?.data;
+        const response = error.response;
+        if (response.status > 400) {
+          setError("general", {
+            type: "manual",
+            message: "something went wrong trying to register",
+          });
+        } else if (!_.isEmpty(_.keys(errors))) {
+          _.keys(errors).forEach((errorKey) => {
+            setError(errorKey, {
+              type: "manual",
+              message: errors[errorKey][0],
+            });
+          });
+        }
+      },
     }
   );
-
   const onSubmit = async (data) => {
-    await doLogin(data);
+    await doRegister(data);
   };
-
   const lockButton = (
     <Tooltip2 content={`${showPassword ? "Hide" : "Show"} Password`}>
       <Button
@@ -57,7 +74,7 @@ function Login() {
     <Page>
       <Card>
         <form onSubmit={handleSubmit(onSubmit)}>
-          {isError && "Unable to login with the provided credentials"}
+          {errors?.general?.message || null}
           <Label>
             Username
             <Controller
@@ -74,6 +91,29 @@ function Login() {
                   disabled={formState.isSubmitting || isLoading}
                   onChange={onChange}
                   placeholder="Username"
+                  type="text"
+                  inputRef={ref}
+                />
+              )}
+            />
+            {errors?.username?.message || null}
+          </Label>
+          <Label>
+            Email
+            <Controller
+              control={control}
+              name="email"
+              rules={{ required: "This field is required" }}
+              render={({
+                field: { onChange, onBlur, value, ref },
+                formState,
+              }) => (
+                <InputGroup
+                  large
+                  onBlur={onBlur}
+                  disabled={formState.isSubmitting || isLoading}
+                  onChange={onChange}
+                  placeholder="Email"
                   type="text"
                   inputRef={ref}
                 />
@@ -105,11 +145,35 @@ function Login() {
             />
             {errors?.password?.message || null}
           </Label>
+          <Label>
+            Re-enter Password
+            <Controller
+              control={control}
+              name="confirmPassword"
+              rules={{ required: "This field is required" }}
+              render={({
+                field: { onChange, onBlur, value, ref },
+                formState,
+              }) => (
+                <InputGroup
+                  large
+                  onBlur={onBlur}
+                  disabled={formState.isSubmitting || isLoading}
+                  onChange={onChange}
+                  placeholder="Confirm Password"
+                  rightElement={lockButton}
+                  type={showPassword ? "text" : "password"}
+                  inputRef={ref}
+                />
+              )}
+            />
+            {errors?.password?.message || null}
+          </Label>
           <Button type="submit" disabled={isLoading}>
             Submit
           </Button>
         </form>
-        <Link to="/register">Don't have an account? Get started here.</Link>
+        <Link to="/login">Already have an account? Log in here.</Link>
       </Card>
     </Page>
   );
