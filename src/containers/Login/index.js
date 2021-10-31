@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import Page from "components/Page";
+import { Redirect } from "react-router-dom";
 import { InputGroup, Intent, Button, Label, Card } from "@blueprintjs/core";
 import { useForm, Controller } from "react-hook-form";
 import { Tooltip2 } from "@blueprintjs/popover2";
@@ -8,6 +9,8 @@ import { AuthContext } from "context/AuthContext";
 function Login() {
   const [showPassword, setShowPassword] = React.useState(false);
   const { state, login } = useContext(AuthContext);
+  const { isAuthenticated, isLoading } = state;
+
   const {
     control,
     handleSubmit,
@@ -25,11 +28,15 @@ function Login() {
   );
   const onSubmit = (data) => {
     console.log(data);
+    //   Make login request here
     login({
       user: { name: "Test User", email: "test@test.com" },
       token: "ABCDEFG",
     });
   };
+  if (isAuthenticated) {
+    return <Redirect to="/" />;
+  }
   return (
     <Page>
       <Card>

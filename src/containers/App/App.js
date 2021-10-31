@@ -5,7 +5,7 @@ import Home from "containers/Home";
 import Login from "containers/Login";
 import Header from "components/Header";
 import { AuthProvider } from "context/AuthContext";
-
+import PrivateRoute from "components/PrivateRoute";
 function App() {
   return (
     <AuthProvider>
@@ -13,9 +13,8 @@ function App() {
         <div>
           <Header />
           <Switch>
-            <Route path="/about">
-              <About />
-            </Route>
+            <PrivateRoute path="/about" component={About} />
+
             <Route path="/login">
               <Login />
             </Route>

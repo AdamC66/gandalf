@@ -4,6 +4,7 @@ const initialState = {
   user: {},
   token: null,
   isAuthenticated: false,
+  isLoading: true,
 };
 export const AuthContext = createContext(initialState);
 
@@ -13,12 +14,13 @@ function UserReducer(state, action) {
       const { user, token } = action.payload;
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token);
-
+      const isLoading = false;
       return {
         ...state,
         user: user,
         token: token,
-        isAuthenticated: !_.isEmpty(user) && token,
+        isLoading,
+        isAuthenticated: !_.isEmpty(user) && token && !isLoading,
       };
     case "LOGOUT":
       localStorage.removeItem("user");
@@ -37,6 +39,7 @@ function UserReducer(state, action) {
 export const AuthProvider = (props) => {
   const [state, dispatch] = useReducer(UserReducer, initialState);
   useEffect(() => {
+    //   Do Check for Valid Token here
     login({
       user: JSON.parse(localStorage.getItem("user")),
       token: localStorage.getItem("token"),
