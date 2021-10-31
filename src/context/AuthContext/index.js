@@ -1,4 +1,7 @@
 import React, { createContext, useReducer, useEffect } from "react";
+import { useQuery } from "react-query";
+import { backendFetch } from "utils/api";
+
 import * as _ from "lodash";
 const initialState = {
   user: {},
@@ -30,6 +33,7 @@ function UserReducer(state, action) {
         user: null,
         token: null,
         isAuthenticated: false,
+        isLoading: false,
       };
     default:
       return state;
@@ -38,13 +42,6 @@ function UserReducer(state, action) {
 
 export const AuthProvider = (props) => {
   const [state, dispatch] = useReducer(UserReducer, initialState);
-  useEffect(() => {
-    //   Do Check for Valid Token here
-    login({
-      user: JSON.parse(localStorage.getItem("user")),
-      token: localStorage.getItem("token"),
-    });
-  }, []);
   // actions
   const login = async ({ user, token }) => {
     dispatch({ type: "LOGIN", payload: { user, token } });
@@ -53,10 +50,31 @@ export const AuthProvider = (props) => {
   const logout = () => {
     dispatch({ type: "LOGOUT", payload: null });
   };
+  const { isLoading } = useQuery(
+    "user",
+    () => backendFetch({ endpoint: `api/v1/user/` }),
+    {
+      cacheTime: Infinity,
+      staleTime: Infinity,
+      retry: false,
+      onSuccess: (data) => {
+        login({
+          user: data,
+          token: localStorage.getItem("token"),
+        });
+      },
+      onError: () => {
+        logout();
+      },
+    }
+  );
+  useEffect(() => {
+    //   Do Check for Valid Token here
+  }, []);
 
   return (
     <AuthContext.Provider value={{ state, login, logout }}>
-      {props.children}
+      {isLoading ? "Loading" : props.children}
     </AuthContext.Provider>
   );
 };

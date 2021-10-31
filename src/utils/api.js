@@ -27,7 +27,7 @@ export const backendFetch = ({
   omitToken = false,
 }) => {
   const customHeaders = customInit.headers ? customInit.headers : {};
-  const token = localStorage.getItem("TOKEN");
+  const token = localStorage.getItem("token");
   if (token && !omitToken) {
     customHeaders.Authorization = `Token ${token}`;
   }

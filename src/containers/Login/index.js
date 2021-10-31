@@ -1,7 +1,9 @@
 import React, { useContext } from "react";
 import Page from "components/Page";
+import { useMutation } from "react-query";
 import { Redirect } from "react-router-dom";
 import { InputGroup, Intent, Button, Label, Card } from "@blueprintjs/core";
+import { backendFetch } from "utils/api";
 import { useForm, Controller } from "react-hook-form";
 import { Tooltip2 } from "@blueprintjs/popover2";
 import { AuthContext } from "context/AuthContext";
@@ -10,7 +12,28 @@ function Login() {
   const [showPassword, setShowPassword] = React.useState(false);
   const { state, login } = useContext(AuthContext);
   const { isAuthenticated } = state;
+  const { mutate: doLogin, isLoading, isError } = useMutation(
+    (data) =>
+      backendFetch({
+        endpoint: `auth/login/`,
+        method: "POST",
+        body: data,
+        omitToken: true,
+      }),
+    {
+      useErrorBoundary: false,
+      onSuccess: (data) => {
+        login({
+          user: { name: "Test User", email: "test@test.com" },
+          token: data.token,
+        });
+      },
+    }
+  );
 
+  const onSubmit = async (data) => {
+    await doLogin(data);
+  };
   const {
     control,
     handleSubmit,
@@ -26,14 +49,6 @@ function Login() {
       />
     </Tooltip2>
   );
-  const onSubmit = (data) => {
-    console.log(data);
-    //   Make login request here
-    login({
-      user: { name: "Test User", email: "test@test.com" },
-      token: "ABCDEFG",
-    });
-  };
   if (isAuthenticated) {
     return <Redirect to="/" />;
   }
@@ -41,11 +56,12 @@ function Login() {
     <Page>
       <Card>
         <form onSubmit={handleSubmit(onSubmit)}>
+          {isError && "Unable to login with the provided credentials"}
           <Label>
-            Email
+            Username
             <Controller
               control={control}
-              name="email"
+              name="username"
               rules={{ required: "This field is required" }}
               render={({
                 field: { onChange, onBlur, value, ref },
@@ -54,9 +70,9 @@ function Login() {
                 <InputGroup
                   large
                   onBlur={onBlur}
-                  disabled={formState.isSubmitting}
+                  disabled={formState.isSubmitting || isLoading}
                   onChange={onChange}
-                  placeholder="Email"
+                  placeholder="Username"
                   type="text"
                   inputRef={ref}
                 />
@@ -77,7 +93,7 @@ function Login() {
                 <InputGroup
                   large
                   onBlur={onBlur}
-                  disabled={formState.isSubmitting}
+                  disabled={formState.isSubmitting || isLoading}
                   onChange={onChange}
                   placeholder="Password"
                   rightElement={lockButton}
@@ -88,7 +104,9 @@ function Login() {
             />
             {errors?.password?.message || null}
           </Label>
-          <Button type="submit">Submit</Button>
+          <Button type="submit" disabled={isLoading}>
+            Submit
+          </Button>
         </form>
       </Card>
     </Page>
